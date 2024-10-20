@@ -1,4 +1,5 @@
 from PIL import Image, ImageDraw, ImageFont, ImageFilter
+import random
 
 def generate_random_image():
     width, height = 640, 480
