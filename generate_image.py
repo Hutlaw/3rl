@@ -21,9 +21,8 @@ def generate_random_image():
 
     random_letters = ''.join(random.choices('ABCDEFGHIJKLMNOPQRSTUVWXYZ', k=3))
 
-    font_path = "/usr/share/fonts/truetype/msttcorefonts/Comic_Sans_MS.ttf"
     font_size = 100
-    font = ImageFont.truetype(font_path, font_size)
+    font = ImageFont.load_default()
 
     text_bbox = draw.textbbox((0, 0), random_letters, font=font)
     text_width, text_height = text_bbox[2] - text_bbox[0], text_bbox[3] - text_bbox[1]
@@ -38,7 +37,7 @@ def generate_random_image():
 
     handle_text = "@3randomletters.bsky.social"
     handle_text_size = 20
-    handle_font = ImageFont.truetype(font_path, handle_text_size)
+    handle_font = ImageFont.load_default()
     handle_bbox = draw.textbbox((0, 0), handle_text, font=handle_font)
     handle_text_width, handle_text_height = handle_bbox[2] - handle_bbox[0], handle_bbox[3] - handle_bbox[1]
     handle_x = width - handle_text_width - 10
