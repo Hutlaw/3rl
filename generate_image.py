@@ -1,25 +1,39 @@
-from PIL import Image, ImageDraw, ImageFont
-import random
+from PIL import Image, ImageDraw, ImageFont, ImageFilter
 
 def generate_random_image():
-    width, height = 800, 600
-    background_color = (0, 0, 0)
+    width, height = 640, 480
+    background_color_top = (30, 30, 30)
+    background_color_bottom = (0, 0, 0)
     text_color = (255, 255, 255)
+    outline_color = (0, 0, 0)
+    shadow_offset = 5
+    glow_radius = 10
 
-    img = Image.new('RGB', (width, height), background_color)
+    img = Image.new('RGB', (width, height))
     draw = ImageDraw.Draw(img)
+
+    for y in range(height):
+        color = tuple(
+            int(background_color_top[i] + (background_color_bottom[i] - background_color_top[i]) * y / height) for i in range(3)
+        )
+        draw.line([(0, y), (width, y)], fill=color)
 
     random_letters = ''.join(random.choices('ABCDEFGHIJKLMNOPQRSTUVWXYZ', k=3))
 
-    font_path = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
-    font_size = 50
+    font_path = "/usr/share/fonts/truetype/msttcorefonts/Comic_Sans_MS.ttf"
+    font_size = 100
     font = ImageFont.truetype(font_path, font_size)
 
     text_bbox = draw.textbbox((0, 0), random_letters, font=font)
     text_width, text_height = text_bbox[2] - text_bbox[0], text_bbox[3] - text_bbox[1]
     text_x = (width - text_width) / 2
     text_y = (height - text_height) / 2
+
+    draw.text((text_x - shadow_offset, text_y - shadow_offset), random_letters, font=font, fill=outline_color)
+    draw.text((text_x + shadow_offset, text_y + shadow_offset), random_letters, font=font, fill=outline_color)
     draw.text((text_x, text_y), random_letters, font=font, fill=text_color)
+
+    img = img.filter(ImageFilter.GaussianBlur(radius=glow_radius))
 
     handle_text = "@3randomletters.bsky.social"
     handle_text_size = 20
@@ -28,6 +42,8 @@ def generate_random_image():
     handle_text_width, handle_text_height = handle_bbox[2] - handle_bbox[0], handle_bbox[3] - handle_bbox[1]
     handle_x = width - handle_text_width - 10
     handle_y = height - handle_text_height - 10
+
+    draw.text((handle_x - shadow_offset, handle_y - shadow_offset), handle_text, font=handle_font, fill=outline_color)
     draw.text((handle_x, handle_y), handle_text, font=handle_font, fill=text_color)
 
     img.save('random_image.png')
