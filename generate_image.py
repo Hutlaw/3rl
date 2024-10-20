@@ -50,7 +50,7 @@ def generate_random_image():
     
     draw.text((handle_x, handle_y), handle_text, font=handle_font, fill=text_color)
 
-    img.save('random_image_output.png')
+    img.save('random_image.png')
     print("Image saved successfully!")
 
 if __name__ == "__main__":
