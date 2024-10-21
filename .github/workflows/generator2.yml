@@ -2,7 +2,7 @@ name: Random Image Generator2
 
 on:
   schedule:
-    - cron: '*/20 * * * *'
+    - ron: '*/20 * * * *'
 
 jobs:
   generate_image:
