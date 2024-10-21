@@ -23,7 +23,7 @@ jobs:
         python -m pip install --upgrade pip
         pip install Pillow
 
-    - name: Generate random image
+    - name: Generate random images
       run: |
         python generate_image.py
 
@@ -39,19 +39,21 @@ jobs:
           npm install @atproto/api dotenv
         fi
 
-    - name: Upload to Bluesky
+    - name: Upload to Bluesky for 3, 4, and 5 random letters
       env:
         BSKY_HANDLE: ${{ secrets.BSKY_HANDLE }}
+        BSKY_HANDLE2: ${{ secrets.BSKY_HANDLE2 }}
+        BSKY_HANDLE3: ${{ secrets.BSKY_HANDLE3 }}
         BSKY_PASSWORD: ${{ secrets.BSKY_PASSWORD }}
       run: |
         node index.js
 
-    - name: Commit and push image
+    - name: Commit and push images
       env:
         GITHUB_TOKEN: ${{ secrets.GT }}
       run: |
         git config --global user.name "github-actions[bot]"
         git config --global user.email "github-actions[bot]@users.noreply.github.com"
-        git add random_image.png random_letters.txt
-        git commit -m "Update random image"
+        git add random_image_3.png random_image_4.png random_image_5.png random_letters_3.txt random_letters_4.txt random_letters_5.txt
+        git commit -m "Update random images and letters"
         git push
