@@ -1,4 +1,4 @@
-from PIL import Image, ImageDraw, ImageFont, ImageFilter
+from PIL import Image, ImageDraw, ImageFont
 import random
 import os
 
@@ -9,7 +9,6 @@ def generate_random_image():
     text_color = (255, 255, 255)
     outline_color = (0, 0, 0)
     shadow_offset = 5
-    glow_radius = 0
 
     img = Image.new('RGB', (width, height))
     draw = ImageDraw.Draw(img)
@@ -47,14 +46,11 @@ def generate_random_image():
     handle_y = height - handle_text_height - 20
 
     draw.text((handle_x - shadow_offset, handle_y - shadow_offset), handle_text, font=handle_font, fill=outline_color)
-    
     draw.text((handle_x, handle_y), handle_text, font=handle_font, fill=text_color)
 
     img.save('random_image.png')
-    print("Image saved successfully!")
-    
+    print(f"Image saved successfully! Random letters: {random_letters}")
     return random_letters
 
 if __name__ == "__main__":
-    letters = generate_random_image()
-    print("Generated letters:", letters)
+    generate_random_image()
