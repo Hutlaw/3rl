@@ -19,7 +19,7 @@ async function uploadImageAndPost() {
 
         if (!uploadResponse || !uploadResponse.data) return;
 
-        const randomLetters = process.argv[2] || 'XYZ';
+        const randomLetters = fs.readFileSync('random_letters.txt', 'utf-8');
         const caption = `3 random letters (${randomLetters[0]}, ${randomLetters[1]}, ${randomLetters[2]})`;
 
         const postResponse = await agent.post({
