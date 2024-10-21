@@ -1,7 +1,8 @@
 name: Random Image Generator
 
 on:
-  workflow_dispatch:
+  schedule:
+    - cron: '0 * * * *'
 
 jobs:
   generate_image:
@@ -42,7 +43,7 @@ jobs:
         BSKY_HANDLE: ${{ secrets.BSKY_HANDLE }}
         BSKY_PASSWORD: ${{ secrets.BSKY_PASSWORD }}
       run: |
-        node index.js $(python -c "from generate_image import generate_random_image; print(generate_random_image())")
+        node index.js
 
     - name: Commit and push image
       env:
@@ -50,6 +51,6 @@ jobs:
       run: |
         git config --global user.name "github-actions[bot]"
         git config --global user.email "github-actions[bot]@users.noreply.github.com"
-        git add random_image.png
+        git add random_image.png random_letters.txt
         git commit -m "Update random image"
         git push
