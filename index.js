@@ -1,59 +1,52 @@
-const { BskyAgent } = require('@atproto/api');
+const bsky = require('@atproto/api');
 const fs = require('fs');
-const path = require('path');
-const { exec } = require('child_process');
+require('dotenv').config();
 
-async function generateImage() {
-    return new Promise((resolve, reject) => {
-        exec('python3 generate_image.py', (error, stdout, stderr) => {
-            if (error) {
-                console.error(`Error generating image: ${stderr}`);
-                reject(stderr);
-            } else {
-                console.log(stdout);
-                const lettersMatch = stdout.match(/Generated letters: (\w{3})/);
-                if (lettersMatch) {
-                    resolve(lettersMatch[1]);
-                } else {
-                    reject("Failed to extract letters from output.");
-                }
-            }
-        });
-    });
-}
+const handle = process.env.BSKY_HANDLE;
+const password = process.env.BSKY_PASSWORD;
+const randomImagePath = './random_image.png';
 
-async function postImageWithCaption(randomLetters) {
+async function uploadImageAndPost() {
+    const { BskyAgent } = bsky;
     const agent = new BskyAgent({ service: 'https://bsky.social' });
 
-    await agent.login({
-        identifier: process.env.BSKY_HANDLE,
-        password: process.env.BSKY_PASSWORD,
-    });
+    try {
+        await agent.login({ identifier: handle, password: password });
+        console.log('Logged into Bluesky successfully.');
 
-    const imagePath = path.join(__dirname, 'random_image.png');
-    const imageBytes = fs.readFileSync(imagePath);
+        const randomImage = fs.readFileSync(randomImagePath);
+        const uploadResponse = await agent.uploadBlob(randomImage, { encoding: 'image/png' });
 
-    const uploadResponse = await agent.uploadBlob(imageBytes, {
-        encoding: 'image/png',
-    });
+        if (!uploadResponse || !uploadResponse.data) {
+            console.error('Image upload failed.');
+            return;
+        }
 
-    const caption = `3 random letters (${randomLetters[0]}, ${randomLetters[1]}, ${randomLetters[2]})`;
-    await agent.post({
-        text: caption,
-        embed: {
-            $type: 'app.bsky.embed.images',
-            images: [
-                {
+        console.log('Image uploaded successfully.');
+
+        const randomLetters = process.argv[2] || 'XYZ';
+        const caption = `3 random letters (${randomLetters[0]}, ${randomLetters[1]}, ${randomLetters[2]})`;
+
+        const postResponse = await agent.post({
+            text: caption,
+            embed: {
+                $type: 'app.bsky.embed.images',
+                images: [{
                     image: uploadResponse.data.blob,
-                    alt: 'Random Image',
-                },
-            ],
-        },
-    });
+                    alt: `Random letters: ${randomLetters}`
+                }]
+            }
+        });
 
-    console.log('Image posted successfully with caption:', caption);
+        if (postResponse && postResponse.uri) {
+            console.log(`Post created successfully: ${postResponse.uri}`);
+        } else {
+            console.error('Post creation failed.');
+        }
+
+    } catch (error) {
+        console.error('An error occurred:', error);
+    }
 }
 
-generateImage()
-    .then(letters => postImageWithCaption(letters))
-    .catch(error => console.error('Error:', error));
+uploadImageAndPost();
