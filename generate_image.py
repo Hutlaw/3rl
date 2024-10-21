@@ -21,6 +21,9 @@ def generate_random_image():
 
     random_letters = ''.join(random.choices('ABCDEFGHIJKLMNOPQRSTUVWXYZ', k=3))
 
+    with open("random_letters.txt", "w") as file:
+        file.write(random_letters)
+
     font_size = 100
     font_path = "Comic Sans MS.ttf"
     if not os.path.exists(font_path):
@@ -49,7 +52,6 @@ def generate_random_image():
     draw.text((handle_x, handle_y), handle_text, font=handle_font, fill=text_color)
 
     img.save('random_image.png')
-    print(f"Image saved successfully! Random letters: {random_letters}")
     return random_letters
 
 if __name__ == "__main__":
