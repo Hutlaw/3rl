@@ -11,7 +11,9 @@ async function uploadImageAndPost() {
     const agent = new BskyAgent({ service: 'https://bsky.social' });
 
     try {
+        console.log('Attempting login with handle:', handle);
         await agent.login({ identifier: handle, password: password });
+
         const randomImage = fs.readFileSync(randomImagePath);
         const uploadResponse = await agent.uploadBlob(randomImage, { encoding: 'image/png' });
 
