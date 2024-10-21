@@ -1,7 +1,6 @@
 name: Random Image Generator2
 
 on:
-  workflow_dispatch:
   schedule:
     - cron: '*/20 * * * *'
 
