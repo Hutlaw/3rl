@@ -12,7 +12,6 @@ async function uploadImageAndPost() {
 
     try {
         await agent.login({ identifier: handle, password: password });
-
         const randomImage = fs.readFileSync(randomImagePath);
         const uploadResponse = await agent.uploadBlob(randomImage, { encoding: 'image/png' });
 
@@ -35,7 +34,6 @@ async function uploadImageAndPost() {
         if (postResponse && postResponse.uri) {
             console.log(`Post created successfully: ${postResponse.uri}`);
         }
-
     } catch (error) {
         console.error('An error occurred:', error);
     }
