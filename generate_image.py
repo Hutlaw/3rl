@@ -35,7 +35,6 @@ def generate_random_image():
 
     draw.text((text_x - shadow_offset, text_y - shadow_offset), random_letters, font=font, fill=outline_color)
     draw.text((text_x + shadow_offset, text_y + shadow_offset), random_letters, font=font, fill=outline_color)
-    
     draw.text((text_x, text_y), random_letters, font=font, fill=text_color)
 
     handle_text = "@3randomletters.bsky.social"
