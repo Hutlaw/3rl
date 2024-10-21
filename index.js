@@ -12,17 +12,11 @@ async function uploadImageAndPost() {
 
     try {
         await agent.login({ identifier: handle, password: password });
-        console.log('Logged into Bluesky successfully.');
 
         const randomImage = fs.readFileSync(randomImagePath);
         const uploadResponse = await agent.uploadBlob(randomImage, { encoding: 'image/png' });
 
-        if (!uploadResponse || !uploadResponse.data) {
-            console.error('Image upload failed.');
-            return;
-        }
-
-        console.log('Image uploaded successfully.');
+        if (!uploadResponse || !uploadResponse.data) return;
 
         const randomLetters = process.argv[2] || 'XYZ';
         const caption = `3 random letters (${randomLetters[0]}, ${randomLetters[1]}, ${randomLetters[2]})`;
@@ -40,8 +34,6 @@ async function uploadImageAndPost() {
 
         if (postResponse && postResponse.uri) {
             console.log(`Post created successfully: ${postResponse.uri}`);
-        } else {
-            console.error('Post creation failed.');
         }
 
     } catch (error) {
