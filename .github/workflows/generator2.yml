@@ -3,7 +3,7 @@ name: Random Image Generator2
 on:
   workflow_dispatch:
   schedule:
-    - cron: '*/10 * * * *'
+    - cron: '*/20 * * * *'
 
 jobs:
   generate_image:
