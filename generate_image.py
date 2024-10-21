@@ -52,6 +52,9 @@ def generate_random_image():
 
     img.save('random_image.png')
     print("Image saved successfully!")
+    
+    return random_letters
 
 if __name__ == "__main__":
-    generate_random_image()
+    letters = generate_random_image()
+    print("Generated letters:", letters)
