@@ -37,3 +37,12 @@ If you have any suggestions, feedback, or ideas for improvements, feel free to o
 Happy coding!
 
 — **Hutlaw**
+
+Current 3 random letters
+![Current 3 random letters](random_image_3.png)
+
+Current 4 random letters
+![Current 4 random letters](random_image_4.png)
+
+Current 5 random letters
+![Current 5 random letters](random_image_5.png)
