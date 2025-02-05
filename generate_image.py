@@ -25,7 +25,7 @@ def generate_random_image(letter_count):
         file.write(random_letters)
 
     font_size = 100
-    font_path = "Comic Sans MS.ttf"
+    font_path = "Short Baby.ttf"
     font = ImageFont.truetype(font_path, font_size) if os.path.exists(font_path) else ImageFont.load_default()
 
     text_bbox = draw.textbbox((0, 0), random_letters, font=font)
