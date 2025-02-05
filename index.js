@@ -33,7 +33,8 @@ async function uploadImageAndPost(letterCount) {
                 $type: 'app.bsky.embed.images',
                 images: [{
                     image: uploadResponse.data.blob,
-                    alt: `Random letters: ${randomLetters}`
+                    alt: `Random letters: ${randomLetters}
+This image was generated automatically via a bot and pushed via a bot.`
                 }]
             }
         });
