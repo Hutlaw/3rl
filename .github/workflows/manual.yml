@@ -1,0 +1,48 @@
+name: Manual Image Generator
+
+on:
+  workflow_dispatch:
+
+jobs:
+  generate_image:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.x'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install Pillow
+
+    - name: Generate predefined images
+      run: |
+        python manual/generate.py
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18.x'
+
+    - name: Ensure dependencies
+      run: |
+        if [ ! -f manual/package.json ]; then
+          cd manual
+          npm init -y
+          npm install @atproto/api dotenv
+        fi
+
+    - name: Upload predefined images to Bluesky
+      env:
+        BSKY_HANDLE: ${{ secrets.BSKY_HANDLE }}
+        BSKY_HANDLE2: ${{ secrets.BSKY_HANDLE2 }}
+        BSKY_HANDLE3: ${{ secrets.BSKY_HANDLE3 }}
+        BSKY_PASSWORD: ${{ secrets.BSKY_PASSWORD }}
+      run: |
+        node manual/index.js
