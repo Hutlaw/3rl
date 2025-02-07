@@ -1,6 +1,5 @@
 const bsky = require('@atproto/api');
 const fs = require('fs');
-const readline = require('readline');
 require('dotenv').config();
 
 const handles = {
@@ -10,53 +9,47 @@ const handles = {
 };
 
 const password = process.env.BSKY_PASSWORD;
-const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
 
-async function uploadImageAndPost(letterCount, letters = null) {
+async function uploadImageAndPost(letterCount) {
     const { BskyAgent } = bsky;
     const agent = new BskyAgent({ service: 'https://bsky.social' });
 
     try {
-        console.log(`Logging in for ${letterCount}-letter account...`);
+        console.log(`Attempting login for ${letterCount} random letters with handle: ${handles[letterCount]}`);
         await agent.login({ identifier: handles[letterCount], password });
 
-        const imgPath = `./random_image_${letterCount}.png`;
-        const img = fs.readFileSync(imgPath);
-        const uploadResponse = await agent.uploadBlob(img, { encoding: 'image/png' });
+        const randomImagePath = `./random_image_${letterCount}.png`;
+        const randomImage = fs.readFileSync(randomImagePath);
+        const uploadResponse = await agent.uploadBlob(randomImage, { encoding: 'image/png' });
 
-        if (!uploadResponse?.data) return;
+        if (!uploadResponse || !uploadResponse.data) return;
 
-        const text = letters || fs.readFileSync(`random_letters_${letterCount}.txt`, 'utf-8');
-        const caption = `${letterCount} random letters (${text})`;
+        const randomLetters = fs.readFileSync(`random_letters_${letterCount}.txt`, 'utf-8');
+        const caption = `${letterCount} random letters (${randomLetters})`;
 
         const postResponse = await agent.post({
             text: caption,
             embed: {
                 $type: 'app.bsky.embed.images',
-                images: [{ image: uploadResponse.data.blob, alt: `Generated letters: ${text}` }]
+                images: [{
+                    image: uploadResponse.data.blob,
+                    alt: `Random letters: ${randomLetters}
+This image was generated automatically via a bot and pushed via a bot.
+Automated repository can be found here: https://github.com/hutlaw/3rl`
+                }]
             }
         });
 
-        if (postResponse?.uri) console.log(`Post successful: ${postResponse.uri}`);
+        if (postResponse && postResponse.uri) {
+            console.log(`Post created successfully for ${letterCount} random letters: ${postResponse.uri}`);
+        }
     } catch (error) {
-        console.error(`Error posting for ${letterCount} letters:`, error);
+        console.error(`An error occurred for ${letterCount} random letters:`, error);
     }
 }
 
 (async () => {
-    if (process.argv[2] === "manual") {
-        rl.question("Use custom letters? (yes/no): ", (useCustom) => {
-            if (useCustom.toLowerCase() !== "yes") return rl.close();
-            rl.question("Select account (3, 4, 5): ", (account) => {
-                if (!["3", "4", "5"].includes(account)) return rl.close();
-                rl.question(`Enter ${account} letters: `, (letters) => {
-                    if (letters.length !== parseInt(account)) return rl.close();
-                    uploadImageAndPost(parseInt(account), letters);
-                    rl.close();
-                });
-            });
-        });
-    } else {
-        [3, 4, 5].forEach(uploadImageAndPost);
+    for (const letterCount of [3, 4, 5]) {
+        await uploadImageAndPost(letterCount);
     }
 })();
