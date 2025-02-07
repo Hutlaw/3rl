@@ -1,5 +1,6 @@
 const bsky = require('@atproto/api');
 const fs = require('fs');
+const readline = require('readline');
 require('dotenv').config();
 
 const handles = {
@@ -9,47 +10,53 @@ const handles = {
 };
 
 const password = process.env.BSKY_PASSWORD;
+const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
 
-async function uploadImageAndPost(letterCount) {
+async function uploadImageAndPost(letterCount, letters = null) {
     const { BskyAgent } = bsky;
     const agent = new BskyAgent({ service: 'https://bsky.social' });
 
     try {
-        console.log(`Attempting login for ${letterCount} random letters with handle: ${handles[letterCount]}`);
+        console.log(`Logging in for ${letterCount}-letter account...`);
         await agent.login({ identifier: handles[letterCount], password });
 
-        const randomImagePath = `./random_image_${letterCount}.png`;
-        const randomImage = fs.readFileSync(randomImagePath);
-        const uploadResponse = await agent.uploadBlob(randomImage, { encoding: 'image/png' });
+        const imgPath = `./random_image_${letterCount}.png`;
+        const img = fs.readFileSync(imgPath);
+        const uploadResponse = await agent.uploadBlob(img, { encoding: 'image/png' });
 
-        if (!uploadResponse || !uploadResponse.data) return;
+        if (!uploadResponse?.data) return;
 
-        const randomLetters = fs.readFileSync(`random_letters_${letterCount}.txt`, 'utf-8');
-        const caption = `${letterCount} random letters (${randomLetters})`;
+        const text = letters || fs.readFileSync(`random_letters_${letterCount}.txt`, 'utf-8');
+        const caption = `${letterCount} random letters (${text})`;
 
         const postResponse = await agent.post({
             text: caption,
             embed: {
                 $type: 'app.bsky.embed.images',
-                images: [{
-                    image: uploadResponse.data.blob,
-                    alt: `Random letters: ${randomLetters}
-This image was generated automatically via a bot and pushed via a bot.
-Automated repository can be found here: https://github.com/hutlaw/3rl`
-                }]
+                images: [{ image: uploadResponse.data.blob, alt: `Generated letters: ${text}` }]
             }
         });
 
-        if (postResponse && postResponse.uri) {
-            console.log(`Post created successfully for ${letterCount} random letters: ${postResponse.uri}`);
-        }
+        if (postResponse?.uri) console.log(`Post successful: ${postResponse.uri}`);
     } catch (error) {
-        console.error(`An error occurred for ${letterCount} random letters:`, error);
+        console.error(`Error posting for ${letterCount} letters:`, error);
     }
 }
 
 (async () => {
-    for (const letterCount of [3, 4, 5]) {
-        await uploadImageAndPost(letterCount);
+    if (process.argv[2] === "manual") {
+        rl.question("Use custom letters? (yes/no): ", (useCustom) => {
+            if (useCustom.toLowerCase() !== "yes") return rl.close();
+            rl.question("Select account (3, 4, 5): ", (account) => {
+                if (!["3", "4", "5"].includes(account)) return rl.close();
+                rl.question(`Enter ${account} letters: `, (letters) => {
+                    if (letters.length !== parseInt(account)) return rl.close();
+                    uploadImageAndPost(parseInt(account), letters);
+                    rl.close();
+                });
+            });
+        });
+    } else {
+        [3, 4, 5].forEach(uploadImageAndPost);
     }
 })();
